@@ -2,35 +2,25 @@ import React, {useState, useEffect} from 'react';
 import SearchBar from './SearchBar';
 import VideoList from './VideoList';
 import VideoDetail from './VideoDetail';
-import youtube from '../APIs/youtube';
-
+// import youtube from '../APIs/youtube';
+import useVideos from '../hooks/useVideos';
 
 
 export default function App() {
 
-  const [videos, setVideos] = useState([])
   const [selectedVideo, setSelectedVideo] = useState(null);
-
-  useEffect(() => {
-    
-    onTermSubmit('Twice');
+  //destructure return values from custom hook, using a default term input
+  const [videos, search] = useVideos('Twice');  //customize the default search term here, instead of inside the re-usable custom hook
   
-  }, []);
-
-  const onTermSubmit = async (term) => {
-    //youtube is a pre-configured instance of axios
-    const response = await youtube.get('/search', {
-      params: {
-        q: term 
-      }
-    });
-    setVideos(response.data.items);
-    setSelectedVideo(response.data.items[0]);
-  }
+  // ==> As a piece of state, selectedVideo is considered a derived property of videos
+  useEffect(() => {
+    setSelectedVideo(videos[0]); //after using custom hook: every time videos change, auto-select the first on the list 
+  }, [videos])
+  
 
   return (
     <div className="ui container">
-        <SearchBar onFormSubmit={onTermSubmit}/>
+        <SearchBar onFormSubmit={search}/>
         <div className="ui grid">
           <div className="ui row">
             <div className="eleven wide column">
